@@ -182,7 +182,7 @@ def create_pipeline(x_train):
         ('pca', PCA()),
         ('scaler', MinMaxScaler()),
         ('feature_selection', SelectKBest(score_func=f_classif)),
-        ('mlp', MLPClassifier(random_state=42, max_iter=10000))
+        ('mlp', MLPClassifier(max_iter=15000))
     ])
     
     return pipeline
