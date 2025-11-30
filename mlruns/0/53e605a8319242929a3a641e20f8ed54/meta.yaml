@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/andresnarvaez/Documents/GitHub/LAB-12-prediccion-del-default-usando-mlp-yunarvaez/mlruns/0/53e605a8319242929a3a641e20f8ed54/artifacts
+end_time: 1764487926922
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 53e605a8319242929a3a641e20f8ed54
+run_name: caring-croc-37
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764487890748
+status: 3
+tags: []
+user_id: andresnarvaez

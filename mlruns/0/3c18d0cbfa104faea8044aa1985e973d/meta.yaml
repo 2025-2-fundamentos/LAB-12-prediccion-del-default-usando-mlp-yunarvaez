@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/andresnarvaez/Documents/GitHub/LAB-12-prediccion-del-default-usando-mlp-yunarvaez/mlruns/0/3c18d0cbfa104faea8044aa1985e973d/artifacts
+end_time: 1764487851577
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 3c18d0cbfa104faea8044aa1985e973d
+run_name: clean-boar-921
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764487834607
+status: 4
+tags: []
+user_id: andresnarvaez
