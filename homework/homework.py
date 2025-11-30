@@ -179,11 +179,12 @@ def create_pipeline(x_train):
         remainder='passthrough'
     )
 
-    pipeline = Pipeline(steps=[
+
+    pipeline = Pipeline([
         ('preprocessor', preprocessor),
-        ('selectk', SelectKBest(score_func=f_classif)),
         ('pca', PCA()),
-        ('clf', MLPClassifier(max_iter=15000, random_state=42))
+        ('selectk', SelectKBest(score_func=f_classif)),
+        ('mlp', MLPClassifier(max_iter=15000, random_state=42))
     ])
     
     return pipeline
@@ -200,17 +201,16 @@ def optimize_hyperparameters(pipeline, x_train, y_train):
     param_grid = {
         'pca__n_components': [None],
         'selectk__k': [20],
-        'clf__hidden_layer_sizes': [(50, 30, 40, 60)],
-        'clf__alpha': [0.28],
-        'clf__learning_rate_init': [0.001]
+        'mlp__hidden_layer_sizes': [(50, 30, 40, 60)],
+        'mlp__alpha': [0.28],
+        'mlp__learning_rate_init': [0.001]
     }
 
     grid = GridSearchCV(
         estimator=pipeline,
         param_grid=param_grid,
         cv=10,
-        n_jobs=-1,
-        verbose=2,
+
         scoring='balanced_accuracy',
         refit=True
     )
