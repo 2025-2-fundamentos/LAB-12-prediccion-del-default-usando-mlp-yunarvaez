@@ -97,6 +97,7 @@
 # {'type': 'cm_matrix', 'dataset': 'test', 'true_0': {"predicted_0": 15562, "predicte_1": 650}, 'true_1': {"predicted_0": 2490, "predicted_1": 1420}}
 #
 
+import glob
 import os
 import gzip
 import pickle
@@ -130,8 +131,8 @@ Realice la limpieza de los datasets:
 """
 
 
-def clean_datasets():
-    df = pd.read_csv("files/input/train_data.csv.zip", compression='zip')
+def clean_datasets(filepath):
+    df = pd.read_csv(filepath, compression='zip')
     df.rename(columns={"default payment next month": "default"}, inplace=True)
     df.drop(columns=["ID"], inplace=True)
     df = df[(df['EDUCATION'] != 0) & (df['MARRIAGE'] != 0)]
@@ -172,17 +173,17 @@ def create_pipeline(x_train):
     
     preprocessor = ColumnTransformer(
         transformers=[
-            ('cat', OneHotEncoder(), categorical_features),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
             ('num', StandardScaler(), numerical_features)
-        ]
+        ],
+        remainder='passthrough'
     )
-    
-    pipeline = Pipeline([
+
+    pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
+        ('selectk', SelectKBest(score_func=f_classif)),
         ('pca', PCA()),
-        ('scaler', MinMaxScaler()),
-        ('feature_selection', SelectKBest(score_func=f_classif)),
-        ('mlp', MLPClassifier(max_iter=15000))
+        ('clf', MLPClassifier(max_iter=15000, random_state=42))
     ])
     
     return pipeline
@@ -197,26 +198,25 @@ balanceada para medir la precisión del modelo.
 
 def optimize_hyperparameters(pipeline, x_train, y_train):
     param_grid = {
-        'feature_selection__k': [20],
-        'mlp__hidden_layer_sizes': [(50, 30, 40, 60)],
-        'mlp__alpha': [0.1],
-        'mlp__learning_rate_init': [0.001]
+        'pca__n_components': [None],
+        'selectk__k': [20],
+        'clf__hidden_layer_sizes': [(50, 30, 40, 60)],
+        'clf__alpha': [0.28],
+        'clf__learning_rate_init': [0.001]
     }
-    
-    grid_search = GridSearchCV(
-        pipeline,
-        param_grid,
+
+    grid = GridSearchCV(
+        estimator=pipeline,
+        param_grid=param_grid,
         cv=10,
-        scoring='balanced_accuracy',
         n_jobs=-1,
-        verbose=2
+        verbose=2,
+        scoring='balanced_accuracy',
+        refit=True
     )
-    
-    grid_search.fit(x_train, y_train)
 
-    return grid_search
-
-
+    grid.fit(x_train, y_train)
+    return grid
 
 """
 Paso 5.
@@ -283,9 +283,10 @@ def calculate_confusion_matrix(y_true, y_pred, dataset_type):
         }
     }
 
-
-test_data_pd = clean_datasets()
-train_data_pd = clean_datasets()
+test_path = "files/input/test_data.csv.zip"
+train_path = "files/input/train_data.csv.zip"
+test_data_pd = clean_datasets(test_path)
+train_data_pd = clean_datasets(train_path)
 x_train, y_train = split_datasets(train_data_pd)
 x_test, y_test = split_datasets(test_data_pd)
 pipeline = create_pipeline(x_train)
